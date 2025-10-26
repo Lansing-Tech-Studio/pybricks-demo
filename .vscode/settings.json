@@ -10,5 +10,9 @@
     ],
     "pybricks.robotName": "LHHDemoBot",
     "python.debugpy.debugJustMyCode": false,
-    "debug.saveBeforeStart": "allEditorsInActiveGroup"
+    "debug.saveBeforeStart": "allEditorsInActiveGroup",
+    "files.exclude": {
+        "**/__pycache__": true,
+        ".venv": true
+    }
 }

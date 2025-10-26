@@ -5,7 +5,7 @@
             "name": "Pybricks: Run on Robot",
             "type": "debugpy",
             "request": "launch",
-            "module": "pybricksdev",
+            "program": "${workspaceFolder}/.vscode/run_pybricks.py",
             "args": [
                 "run",
                 "--name",
@@ -20,7 +20,7 @@
             "name": "Pybricks: Run on Robot (Select)",
             "type": "debugpy",
             "request": "launch",
-            "module": "pybricksdev",
+            "program": "${workspaceFolder}/.vscode/run_pybricks.py",
             "args": [
                 "run",
                 "--name",
