@@ -1,0 +1,14 @@
+{
+    "editor.rulers": [
+        80
+    ],
+    "cSpell.words": [
+        "pupdevices",
+        "pybricks",
+        "pybricksdev",
+        "venv"
+    ],
+    "pybricks.robotName": "LHHDemoBot",
+    "python.debugpy.debugJustMyCode": false,
+    "debug.saveBeforeStart": "allEditorsInActiveGroup"
+}
