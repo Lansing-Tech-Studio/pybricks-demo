@@ -2,7 +2,7 @@ from pybricks.hubs import PrimeHub
 from pybricks.parameters import Button
 from pybricks.tools import wait, StopWatch
 from pybricks.parameters import Color, Icon
-from pix_display import display_number
+import pix_display
 
 
 class Menu:
@@ -16,7 +16,7 @@ class Menu:
     Note: The stop button is set to BLUETOOTH to allow CENTER button to be used for menu selection.
     """
     
-    def __init__(self, hub=None):
+    def __init__(self, hub: PrimeHub=None):
         """
         Initialize the menu system.
         
@@ -27,45 +27,23 @@ class Menu:
         self.menu_items = []
         self.current_index = 0
     
-    def add_item(self, number, function, description=""):
+    def add_item(self, display: Union[int, str, list[str]], function):
         """
         Add a menu item to the menu.
         
         Args:
-            number: The number to display for this menu item (0-99).
+            display: The number/char/pattern to display for this menu item.
             function: The function to execute when this item is selected.
-            description: Optional description for debugging/logging.
         """
-        if number < 0 or number > 99:
-            raise ValueError("Menu item number must be between 0 and 99")
+        if isinstance(display, int):
+            if display < 0 or display > 99:
+                raise ValueError("Menu item number must be between 0 and 99")
         
         self.menu_items.append({
-            'number': number,
-            'function': function,
-            'description': description
+            'display': display,
+            'function': function
         })
-    
-    def remove_item(self, number):
-        """
-        Remove a menu item by its number.
         
-        Args:
-            number: The number of the menu item to remove.
-        
-        Returns:
-            bool: True if item was removed, False if not found.
-        """
-        for i, item in enumerate(self.menu_items):
-            if item['number'] == number:
-                self.menu_items.pop(i)
-                # Adjust current index if necessary
-                if self.current_index >= len(self.menu_items) and self.menu_items:
-                    self.current_index = len(self.menu_items) - 1
-                elif not self.menu_items:
-                    self.current_index = 0
-                return True
-        return False
-    
     def clear_items(self):
         """Remove all menu items."""
         self.menu_items.clear()
@@ -82,35 +60,34 @@ class Menu:
             return None
         return self.menu_items[self.current_index]
     
-    def _display_current_number(self):
+    def _display_current_item(self):
         """Display the number for the currently selected menu item."""
         if not self.menu_items:
             self.hub.display.char('?')
             return
         
         current_item = self.get_current_item()
-        display_number(self.hub, current_item['number'])
+        pix_display.display_content(self.hub, current_item['display'])
     
     def _navigate_left(self):
         """Navigate to the previous menu item."""
         if self.menu_items:
             self.current_index = (self.current_index - 1) % len(self.menu_items)
-            self._display_current_number()
+            self._display_current_item()
     
     def _navigate_right(self):
         """Navigate to the next menu item."""
         if self.menu_items:
             self.current_index = (self.current_index + 1) % len(self.menu_items)
-            self._display_current_number()
+            self._display_current_item()
     
-    def _execute_current_function(self):
+    def _execute_current_function(self, auto_increment):
         """Execute the function associated with the current menu item."""
         current_item = self.get_current_item()
         if current_item and current_item['function']:
             try:
                 # Show a brief confirmation that function is executing
                 self.hub.display.icon(Icon.TRUE)
-                wait(200)
                 
                 # Execute the function, passing the hub if the function accepts it
                 try:
@@ -119,29 +96,28 @@ class Menu:
                 except TypeError:
                     # If function doesn't accept parameters, call without
                     current_item['function']()
-                
-                # Show completion indicator
-                self.hub.light.blink(Color.GREEN, [500, 500])
-                wait(1000)
-                
+                            
                 # Return to displaying the current number
-                self._display_current_number()
+                if auto_increment:
+                    self._navigate_right()
+                self._display_current_item()
                 
             except Exception as e:
                 # Show error indicator
                 self.hub.light.blink(Color.RED, [500, 500])
                 wait(1000)
                 # Return to displaying the current number
-                self._display_current_number()
+                self._display_current_item()
                 # Re-raise the exception for debugging
                 raise e
     
-    def run(self, show_startup=True):
+    def run(self, show_startup=False, auto_increment=False):
         """
         Run the menu system. This is the main loop that handles user input.
         
         Args:
             show_startup: If True, shows a startup indicator before beginning.
+            auto_increment: If True, Automatically moves to the next program.
         
         Returns:
             bool: True if menu exited normally, False if no menu items exist.
@@ -166,7 +142,7 @@ class Menu:
             wait(500)
         
         # Display the initial menu item
-        self._display_current_number()
+        self._display_current_item()
         
         while True:
             pressed_buttons = self.hub.buttons.pressed()
@@ -185,10 +161,12 @@ class Menu:
                         wait(10)
                 
                 elif Button.CENTER in pressed_buttons:
-                    self._execute_current_function()
+                    print("Running with auto_increment =", auto_increment)
+                    self._execute_current_function(auto_increment)
                     # Wait for button release
                     while Button.CENTER in self.hub.buttons.pressed():
                         wait(10)
+                    print("moving on")
                 
                 elif Button.BLUETOOTH in pressed_buttons:
                     # Exit the menu
@@ -214,8 +192,7 @@ class Menu:
         items_str = []
         for i, item in enumerate(self.menu_items):
             marker = ">" if i == self.current_index else " "
-            desc = f" ({item['description']})" if item['description'] else ""
-            items_str.append(f"{marker} {item['number']}{desc}")
+            items_str.append(f"{marker} {item['display']}")
         
         return f"Menu ({len(self.menu_items)} items):\n" + "\n".join(items_str)
 
@@ -225,7 +202,6 @@ def demo_function_1(hub):
     """Demo function 1 - could be anything you want to execute."""
     print("Executing function 1!")
     hub.speaker.beep(440, 500)  # Beep at 440Hz for 500ms
-    hub.display.text("Hi")  # Display "Hi" on the hub
 
 def demo_function_2(hub):
     """Demo function 2 - could be anything you want to execute."""
@@ -234,8 +210,11 @@ def demo_function_2(hub):
 
 def demo_function_3(hub):
     """Demo function 3 - could be anything you want to execute."""
-    print("Executing function 3!")
-    hub.speaker.beep(220, 700)  # Lower pitch beep
+    print("Executing function 3! Press center button to stop.")
+    offset = 0
+    while True:
+        offset ^= 1
+        hub.speaker.beep(220 + (offset * 20), 700)
 
 
 if __name__ == "__main__":
@@ -244,9 +223,15 @@ if __name__ == "__main__":
     menu = Menu(hub)
     
     # Add some demo menu items
-    menu.add_item(1, demo_function_1, "Demo 1")
-    menu.add_item(5, demo_function_2, "Demo 2") 
-    menu.add_item(10, demo_function_3, "Demo 3")
+    menu.add_item(1, demo_function_1)
+    menu.add_item('A', demo_function_2) 
+    menu.add_item([
+            "  8  ",
+            " 898 ",
+            "86■68",
+            "6 ■ 6",
+            "  ■  "
+        ], demo_function_3)
     
     print("Starting menu demo...")
     print(menu)

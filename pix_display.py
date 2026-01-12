@@ -1,17 +1,151 @@
 from pybricks.hubs import PrimeHub
-from pybricks.parameters import Button
+from pybricks.parameters import Button, Icon
 from pybricks.tools import wait
 
+class Patterns():
+    numbers = [[
+            " ■■■ ",
+            " ■ ■ ",
+            " ■ ■ ",
+            " ■ ■ ",
+            " ■■■ "
+        ], [
+            "  ■  ",
+            " ■■  ",
+            "  ■  ",
+            "  ■  ",
+            " ■■■ "
+        ], [
+            " ■■■ ",
+            "   ■ ",
+            " ■■■ ",
+            " ■   ",
+            " ■■■ "
+        ], [
+            " ■■■ ",
+            "   ■ ",
+            " ■■■ ",
+            "   ■ ",
+            " ■■■ "
+        ], [
+            " ■ ■ ",
+            " ■ ■ ",
+            " ■■■ ",
+            "   ■ ",
+            "   ■ "
+        ], [
+            " ■■■ ",
+            " ■   ",
+            " ■■■ ",
+            "   ■ ",
+            " ■■■ "
+        ], [
+            " ■■■ ",
+            " ■   ",
+            " ■■■ ",
+            " ■ ■ ",
+            " ■■■ "
+        ], [
+            " ■■■ ",
+            "   ■ ",
+            "   ■ ",
+            "   ■ ",
+            "   ■ "
+        ], [
+            " ■■■ ",
+            " ■ ■ ",
+            " ■■■ ",
+            " ■ ■ ",
+            " ■■■ "
+        ], [
+            " ■■■ ",
+            " ■ ■ ",
+            " ■■■ ",
+            "   ■ ",
+            " ■■■ "
+        ], [
+            "■ ■■■",
+            "■ ■ ■",
+            "■ ■ ■",
+            "■ ■ ■",
+            "■ ■■■"
+        ], [
+            " ■  ■",
+            "■■ ■■",
+            " ■  ■",
+            " ■  ■",
+            " ■  ■"
+        ], [
+            "■ ■■■",
+            "■   ■",
+            "■ ■■■",
+            "■ ■  ",
+            "■ ■■■"
+        ], [
+            "■ ■■■",
+            "■   ■",
+            "■ ■■■",
+            "■   ■",
+            "■ ■■■"
+        ], [
+            "■ ■ ■",
+            "■ ■ ■",
+            "■ ■■■",
+            "■   ■",
+            "■   ■"
+        ], [
+            "■ ■■■",
+            "■ ■  ",
+            "■ ■■■",
+            "■   ■",
+            "■ ■■■"
+        ], [
+            "■ ■■■",
+            "■ ■  ",
+            "■ ■■■",
+            "■ ■ ■",
+            "■ ■■■"
+        ], [
+            "■ ■■■",
+            "■   ■",
+            "■   ■",
+            "■   ■",
+            "■   ■"
+        ], [
+            "■ ■■■",
+            "■ ■ ■",
+            "■ ■■■",
+            "■ ■ ■",
+            "■ ■■■"
+        ], [
+            "■ ■■■",
+            "■ ■ ■",
+            "■ ■■■",
+            "■   ■",
+            "■ ■■■"
+        ]]
 
-def display_pattern(hub, pattern):
+    def is_valid_pattern(pattern: list[str]):
+        if len(pattern) != 5:
+            return False
+        for line in pattern:
+            if len(line) != 5:
+                return False
+        return True
+
+def can_display(content: Union[int, str, list[str]]):
+    return True
+
+def display_pattern(hub: PrimeHub, pattern: list[str]):
     """
     Display a pattern on the hub using a visual representation.
     
     Args:
         hub: PrimeHub instance to display on.
         pattern: List of strings where each string represents a row.
-                 Use '■' or anything other than space or 0 to turn pixel on,
-                 Use '0' or space to turn pixel off.
+                 Use '■' or anything other than space or zero to turn pixel on,
+                 Use space or 0 to turn pixel off,
+                 Use a number 1-9 to change the brightness.
     
     Example:
         display_pattern(hub, [
@@ -22,13 +156,19 @@ def display_pattern(hub, pattern):
             " ■■■ "
         ])
     """
+    # TODO: Switch to calling hub.display.icon
     hub.display.off()
     for y, row in enumerate(pattern):
         for x, char in enumerate(row):
-            if char not in ('0', ' '):
-                hub.display.pixel(y, x)
+            if char != ' ':
+                brightness = 100
+                try:
+                    brightness = int(char) * 10
+                except:
+                    pass
+                hub.display.pixel(y, x, brightness)
 
-def display_number(hub, number: int):
+def display_number(hub: PrimeHub, number: int):
     """
     Display a number (0-99) on the hub using a 5x5 pixel pattern.
     
@@ -39,169 +179,26 @@ def display_number(hub, number: int):
     if number < 0 or number > 99:
         raise ValueError("Number must be between 0 and 99")
     
-    if number == 0:
-        display_pattern(hub, [
-            " ■■■ ",
-            " ■ ■ ",
-            " ■ ■ ",
-            " ■ ■ ",
-            " ■■■ "
-        ])
-    elif number == 1:
-        display_pattern(hub, [
-            "  ■  ",
-            " ■■  ",
-            "  ■  ",
-            "  ■  ",
-            " ■■■ "
-        ])
-    elif number == 2:
-        display_pattern(hub, [
-            " ■■■ ",
-            "   ■ ",
-            " ■■■ ",
-            " ■   ",
-            " ■■■ "
-        ])
-    elif number == 3:
-        display_pattern(hub, [
-            " ■■■ ",
-            "   ■ ",
-            " ■■■ ",
-            "   ■ ",
-            " ■■■ "
-        ])
-    elif number == 4:
-        display_pattern(hub, [
-            " ■ ■ ",
-            " ■ ■ ",
-            " ■■■ ",
-            "   ■ ",
-            "   ■ "
-        ])
-    elif number == 5:
-        display_pattern(hub, [
-            " ■■■ ",
-            " ■   ",
-            " ■■■ ",
-            "   ■ ",
-            " ■■■ "
-        ])
-    elif number == 6:
-        display_pattern(hub, [
-            " ■■■ ",
-            " ■   ",
-            " ■■■ ",
-            " ■ ■ ",
-            " ■■■ "
-        ])
-    elif number == 7:
-        display_pattern(hub, [
-            " ■■■ ",
-            "   ■ ",
-            "   ■ ",
-            "   ■ ",
-            "   ■ "
-        ])
-    elif number == 8:
-        display_pattern(hub, [
-            " ■■■ ",
-            " ■ ■ ",
-            " ■■■ ",
-            " ■ ■ ",
-            " ■■■ "
-        ])
-    elif number == 9:
-        display_pattern(hub, [
-            " ■■■ ",
-            " ■ ■ ",
-            " ■■■ ",
-            "   ■ ",
-            " ■■■ "
-        ])
-    elif number == 10:
-        display_pattern(hub, [
-            "■ ■■■",
-            "■ ■ ■",
-            "■ ■ ■",
-            "■ ■ ■",
-            "■ ■■■"
-        ])
-    elif number == 11:
-        display_pattern(hub, [
-            " ■  ■",
-            "■■ ■■",
-            " ■  ■",
-            " ■  ■",
-            " ■  ■"
-        ])
-    elif number == 12:
-        display_pattern(hub, [
-            "■ ■■■",
-            "■   ■",
-            "■ ■■■",
-            "■ ■  ",
-            "■ ■■■"
-        ])
-    elif number == 13:
-        display_pattern(hub, [
-            "■ ■■■",
-            "■   ■",
-            "■ ■■■",
-            "■   ■",
-            "■ ■■■"
-        ])
-    elif number == 14:
-        display_pattern(hub, [
-            "■ ■ ■",
-            "■ ■ ■",
-            "■ ■■■",
-            "■   ■",
-            "■   ■"
-        ])
-    elif number == 15:
-        display_pattern(hub, [
-            "■ ■■■",
-            "■ ■  ",
-            "■ ■■■",
-            "■   ■",
-            "■ ■■■"
-        ])
-    elif number == 16:
-        display_pattern(hub, [
-            "■ ■■■",
-            "■ ■  ",
-            "■ ■■■",
-            "■ ■ ■",
-            "■ ■■■"
-        ])
-    elif number == 17:
-        display_pattern(hub, [
-            "■ ■■■",
-            "■   ■",
-            "■   ■",
-            "■   ■",
-            "■   ■"
-        ])
-    elif number == 18:
-        display_pattern(hub, [
-            "■ ■■■",
-            "■ ■ ■",
-            "■ ■■■",
-            "■ ■ ■",
-            "■ ■■■"
-        ])
-    elif number == 19:
-        display_pattern(hub, [
-            "■ ■■■",
-            "■ ■ ■",
-            "■ ■■■",
-            "■   ■",
-            "■ ■■■"
-        ])
+    if number < 10:
+        hub.display.char(str(number))
+    elif number < 20:
+        display_pattern(hub, Patterns.numbers[number])
     else:
         hub.display.number(number)
 
+def display_content(hub: PrimeHub, content: Union[str, int, list[str]]):
+    if isinstance(content, int):
+        if content > -100 and content < 100:
+            if content < 0:
+                hub.display.number(content)
+            else:
+                display_number(hub, content)
+        else:
+            raise ValueError("Number must be between -99 and 99")
+    elif isinstance(content, str):
+        hub.display.char(content[0])
+    else:
+        display_pattern(hub, content)
 
 def run_number_selector():
     """
@@ -212,6 +209,8 @@ def run_number_selector():
     hub = PrimeHub()
     selector = 0
     hub.display.char('?')
+    hub.display.icon([[0,20,40,20,0],[20,40,60,40,20],[40,60,80,60,40],[20,40,60,40,20],[0,20,40,20,0]])
+    print(Icon.ARROW_DOWN)
     selector_increment = 0
     
     while True:
