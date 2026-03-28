@@ -1,6 +1,8 @@
+from typing import Optional, Union
+
 from pybricks.hubs import PrimeHub
 from pybricks.parameters import Button
-from pybricks.tools import wait, StopWatch
+from pybricks.tools import wait
 from pybricks.parameters import Color, Icon
 import pix_display
 
@@ -16,7 +18,7 @@ class Menu:
     Note: The stop button is set to BLUETOOTH to allow CENTER button to be used for menu selection.
     """
     
-    def __init__(self, hub: PrimeHub=None):
+    def __init__(self, hub: Optional[PrimeHub]=None):
         """
         Initialize the menu system.
         
@@ -67,6 +69,8 @@ class Menu:
             return
         
         current_item = self.get_current_item()
+        if current_item is None:
+            return
         pix_display.display_content(self.hub, current_item['display'])
     
     def _navigate_left(self):

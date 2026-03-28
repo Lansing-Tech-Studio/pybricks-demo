@@ -1,6 +1,8 @@
+from typing import Union
+
 from pybricks.hubs import PrimeHub
 from pybricks.parameters import Button, Icon
-from pybricks.tools import wait
+from pybricks.tools import Matrix, wait
 
 class Patterns():
     numbers = [[
@@ -125,6 +127,7 @@ class Patterns():
             "■ ■■■"
         ]]
 
+    @staticmethod
     def is_valid_pattern(pattern: list[str]):
         if len(pattern) != 5:
             return False
@@ -132,9 +135,6 @@ class Patterns():
             if len(line) != 5:
                 return False
         return True
-
-def can_display(content: Union[int, str, list[str]]):
-    return True
 
 def display_pattern(hub: PrimeHub, pattern: list[str]):
     """
@@ -156,17 +156,19 @@ def display_pattern(hub: PrimeHub, pattern: list[str]):
             " ■■■ "
         ])
     """
-    # TODO: Switch to calling hub.display.icon
-    hub.display.off()
-    for y, row in enumerate(pattern):
-        for x, char in enumerate(row):
-            if char != ' ':
-                brightness = 100
+    rows = []
+    for row in pattern:
+        pixels = []
+        for char in row:
+            if char == ' ':
+                pixels.append(0)
+            else:
                 try:
-                    brightness = int(char) * 10
-                except:
-                    pass
-                hub.display.pixel(y, x, brightness)
+                    pixels.append(int(char) * 10)
+                except ValueError:
+                    pixels.append(100)
+        rows.append(pixels)
+    hub.display.icon(Matrix(rows))
 
 def display_number(hub: PrimeHub, number: int):
     """
@@ -209,7 +211,7 @@ def run_number_selector():
     hub = PrimeHub()
     selector = 0
     hub.display.char('?')
-    hub.display.icon([[0,20,40,20,0],[20,40,60,40,20],[40,60,80,60,40],[20,40,60,40,20],[0,20,40,20,0]])
+    hub.display.icon(Matrix([[0,20,40,20,0],[20,40,60,40,20],[40,60,80,60,40],[20,40,60,40,20],[0,20,40,20,0]]))
     print(Icon.ARROW_DOWN)
     selector_increment = 0
     
