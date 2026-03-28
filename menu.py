@@ -117,6 +117,8 @@ class Menu:
                 
             except SystemExit:
                 # CENTER was pressed to stop the running function
+                # Silence the speaker in case it was mid-beep
+                self.hub.speaker.beep(1, 1)
                 self._wait_for_release(Button.CENTER)
                 self._display_current_item()
                 
