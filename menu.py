@@ -1,4 +1,7 @@
-from typing import Optional, Union
+try:
+    from typing import Optional, Union
+except ImportError:
+    pass
 
 from pybricks.hubs import PrimeHub
 from pybricks.parameters import Button
@@ -98,16 +101,23 @@ class Menu:
                 # Show a brief confirmation that function is executing
                 self.hub.display.icon(Icon.TRUE)
                 
-                # Execute the function, passing the hub if it accepts a parameter
-                fn = current_item['function']
-                if fn.__code__.co_argcount > 0:
-                    fn(self.hub)
-                else:
-                    fn()
+                # Wait for CENTER release before making it the stop button
+                self._wait_for_release(Button.CENTER)
+                
+                # Set stop button to CENTER so it can interrupt the running function
+                self.hub.system.set_stop_button(Button.CENTER)
+                
+                # Execute the function, passing the hub
+                current_item['function'](self.hub)
                             
                 # Return to displaying the current number
                 if auto_increment:
                     self._navigate_right()
+                self._display_current_item()
+                
+            except SystemExit:
+                # CENTER was pressed to stop the running function
+                self._wait_for_release(Button.CENTER)
                 self._display_current_item()
                 
             except Exception as e:
@@ -118,6 +128,9 @@ class Menu:
                 self._display_current_item()
                 # Re-raise the exception for debugging
                 raise
+            finally:
+                # Restore stop button to BLUETOOTH for the menu
+                self.hub.system.set_stop_button(Button.BLUETOOTH)
     
     def run(self, show_startup=False, auto_increment=False):
         """
@@ -228,9 +241,9 @@ if __name__ == "__main__":
     menu.add_item([
             "  8  ",
             " 898 ",
-            "86■68",
-            "6 ■ 6",
-            "  ■  "
+            "86#68",
+            "6 # 6",
+            "  #  "
         ], demo_function_3)
     
     print("Starting menu demo...")
