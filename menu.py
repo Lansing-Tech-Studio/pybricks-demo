@@ -73,6 +73,11 @@ class Menu:
             return
         pix_display.display_content(self.hub, current_item['display'])
     
+    def _wait_for_release(self, button):
+        """Wait until the given button is released."""
+        while button in self.hub.buttons.pressed():
+            wait(10)
+
     def _navigate_left(self):
         """Navigate to the previous menu item."""
         if self.menu_items:
@@ -93,13 +98,12 @@ class Menu:
                 # Show a brief confirmation that function is executing
                 self.hub.display.icon(Icon.TRUE)
                 
-                # Execute the function, passing the hub if the function accepts it
-                try:
-                    # Try to call with hub parameter
-                    current_item['function'](self.hub)
-                except TypeError:
-                    # If function doesn't accept parameters, call without
-                    current_item['function']()
+                # Execute the function, passing the hub if it accepts a parameter
+                fn = current_item['function']
+                if fn.__code__.co_argcount > 0:
+                    fn(self.hub)
+                else:
+                    fn()
                             
                 # Return to displaying the current number
                 if auto_increment:
@@ -113,7 +117,7 @@ class Menu:
                 # Return to displaying the current number
                 self._display_current_item()
                 # Re-raise the exception for debugging
-                raise e
+                raise
     
     def run(self, show_startup=False, auto_increment=False):
         """
@@ -154,22 +158,16 @@ class Menu:
             if pressed_buttons:
                 if Button.LEFT in pressed_buttons:
                     self._navigate_left()
-                    # Wait for button release
-                    while Button.LEFT in self.hub.buttons.pressed():
-                        wait(10)
+                    self._wait_for_release(Button.LEFT)
                 
                 elif Button.RIGHT in pressed_buttons:
                     self._navigate_right()
-                    # Wait for button release
-                    while Button.RIGHT in self.hub.buttons.pressed():
-                        wait(10)
+                    self._wait_for_release(Button.RIGHT)
                 
                 elif Button.CENTER in pressed_buttons:
                     print("Running with auto_increment =", auto_increment)
                     self._execute_current_function(auto_increment)
-                    # Wait for button release
-                    while Button.CENTER in self.hub.buttons.pressed():
-                        wait(10)
+                    self._wait_for_release(Button.CENTER)
                     print("moving on")
                 
                 elif Button.BLUETOOTH in pressed_buttons:
@@ -177,9 +175,7 @@ class Menu:
                     self.hub.display.char('X')
                     wait(300)
                     self.hub.display.off()
-                    # Wait for button release
-                    while Button.BLUETOOTH in self.hub.buttons.pressed():
-                        wait(10)
+                    self._wait_for_release(Button.BLUETOOTH)
                     return True
             
             wait(10)
